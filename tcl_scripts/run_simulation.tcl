@@ -13,7 +13,7 @@ open_project [lindex $argv 0]
 # Run the specified simulation
 launch_simulation -mode [lindex $argv 1] -simset [lindex $argv 2]
 # Open a new VCD file to capture to required output
-open_vcd [file join [lindex $argv 3] "[clock format [clock seconds] -format %T_%d%m%Y].vcd"]
+open_vcd [lindex $argv 3]
 log_vcd
 run 2s
 # Close the finished VCD file
