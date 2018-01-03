@@ -2,18 +2,18 @@
 #
 # Inputs
 #   1 - Name of Project
-#   2 - VCD Output Location
-#   3 - Simulation Mode (Behavioural etc.)
-#   4 - Simset (In Vivado)
+#   2 - Simulation Mode (Behavioural etc.)
+#   3 - Simset (In Vivado)
+#   4 - VCD Output Location
 #
 ###
 
 # Open the project so that all simulation sets are available
 open_project [lindex $argv 0]
 # Run the specified simulation
-launch_simulation -mode [lindex $argv 2] -simset [lindex $argv 3]
+launch_simulation -mode [lindex $argv 1] -simset [lindex $argv 2]
 # Open a new VCD file to capture to required output
-open_vcd [file join [lindex $argv 1] "[clock format [clock seconds] -format %T_%d%m%Y].vcd"]
+open_vcd [file join [lindex $argv 3] "[clock format [clock seconds] -format %T_%d%m%Y].vcd"]
 log_vcd
 run 2s
 # Close the finished VCD file
