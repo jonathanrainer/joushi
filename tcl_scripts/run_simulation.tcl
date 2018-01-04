@@ -14,7 +14,8 @@ open_project [lindex $argv 0]
 launch_simulation -mode [lindex $argv 1] -simset [lindex $argv 2]
 # Open a new VCD file to capture to required output
 open_vcd [lindex $argv 3]
-log_vcd
-run 2s
+log_vcd /ryuki_testbench/tracer/*
+restart
+run 1000ns
 # Close the finished VCD file
 close_vcd

@@ -4,11 +4,14 @@ from argparse import ArgumentParser
 from pathlib import Path
 from datetime import datetime
 
+from src.vcd_engine import VCDEngine
+
 
 class Joushi(object):
 
     sh_scripts_dir = Path("/home/jonathanrainer/Documents/Experiments/"
                           "4_pulpino/Joushi/sh_scripts")
+    vcd_engine = VCDEngine()
 
     def run(self, vivado_project_path, output_path,
             tcl_simulation_script, simulation_mode, simulation_set):
@@ -22,6 +25,7 @@ class Joushi(object):
                 tcl_simulation_script.expanduser(),
                 vivado_project_path.expanduser(),
                 simulation_mode, simulation_set, output_file_path), shell=True)
+        self.vcd_engine.extract_tracing_information(output_file_path)
 
 
 if __name__ == "__main__":
