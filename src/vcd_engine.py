@@ -108,13 +108,15 @@ class TraceElement(object):
                         self.fixed_length_hex(extended_bitstring[start:end], 32)
                     )
 
-    def get_from_dict(self, data_dict, map_list):
+    @staticmethod
+    def get_from_dict(data_dict, map_list):
         return reduce(operator.getitem, map_list, data_dict)
 
     def set_in_dict(self, data_dict, map_list, value):
         self.get_from_dict(data_dict, map_list[:-1])[map_list[-1]] = value
 
-    def fixed_length_hex(self, bit_string, required_bit_length):
+    @staticmethod
+    def fixed_length_hex(bit_string, required_bit_length):
         interim_hex = hex(int(bit_string, base=2))
         if required_bit_length // 4 != (len(interim_hex) - 2):
             return \
@@ -128,5 +130,4 @@ class TraceElement(object):
 if __name__ == "__main__":
     vcd_engine = VCDEngine()
     vcd_engine.extract_tracing_information(
-        "/home/jonathanrainer/Documents/Experiments/4_pulpino/Joushi/working/"
-        "102553_05012018.vcd")
+        "../working/102553_05012018.vcd")
