@@ -25,7 +25,7 @@ class VCDEngine(object):
         (["wb_data", "time_start"], 450, 482),
         (["wb_data", "time_end"], 482, 514),
         (["wb_data", "mem_access_res", "time_start"], 514, 546),
-        (["wb_data", "mem_access_res", "time_start"], 546, 578)
+        (["wb_data", "mem_access_res", "time_end"], 546, 578)
     ]
 
     def extract_tracing_information(self, vcd_file):
@@ -41,7 +41,7 @@ class VCDEngine(object):
         processed_data = [(time, TraceElement(bitstring, [["pass_through"]],
                                               self.trace_element_mapping))
                           for (time, bitstring) in parsed[1:]]
-        print(processed_data)
+        return processed_data
 
 
 class TraceElement(object):
@@ -129,5 +129,8 @@ class TraceElement(object):
 
 if __name__ == "__main__":
     vcd_engine = VCDEngine()
-    vcd_engine.extract_tracing_information(
+    results = vcd_engine.extract_tracing_information(
         "../working/102553_05012018.vcd")
+    from src.display_engine import DisplayEngine
+    display_engine = DisplayEngine()
+    display_engine.process_and_display_data(results)
