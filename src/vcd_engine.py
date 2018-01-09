@@ -89,9 +89,9 @@ class TraceElement(object):
         extended_bitstring = bitstring
         # Since SystemVerilog seems to strip out leading zeroes we have to add
         # them back in
-        if len(bitstring) < trace_element_mapping[-1][2] - 1:
+        if len(bitstring) < trace_element_mapping[-1][2]:
             extended_bitstring = \
-                "0" * (trace_element_mapping[-1][2] - len(bitstring) - 1) + \
+                "0" * (trace_element_mapping[-1][2] - len(bitstring)) + \
                 bitstring
         # Iterate over the individual elements of a Trace Element
         for (field, start, end) in trace_element_mapping:
