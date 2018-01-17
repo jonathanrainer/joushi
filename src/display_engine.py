@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+
 
 class DisplayEngine(object):
 
@@ -23,64 +25,83 @@ class DisplayEngine(object):
     def display_results(self, data):
         fig = plt.figure(figsize=(35.08, 24.08))
         ax = fig.add_subplot(111)
-        for (row_data, row_num, label, colour, alpha) in data:
-            for pair in row_data:
+        ax.grid(which="major", color="black", linestyle="-", linewidth=1,
+                axis="x")
+        ax.grid(which="minor", color="black", linestyle="--", linewidth=1,
+                axis="x", alpha=0.3)
+        ax.set_axisbelow(True)
+        for (row_data, row_num, label, colour, line_colour, alpha) in data[0]:
+            for col_index, pair in enumerate(row_data):
                 if pair[0] != pair[1]:
-                    x1 = [pair[0], pair[1]]
-                    y1 = np.array([row_num, row_num])
+                    x1 = [pair[0], pair[1]+1]
+                    y1 = np.array([col_index, col_index])
                     y2 = y1+1
                     plt.fill_between(x1, y1, y2=y2, facecolor=colour,
                                      linewidth=2, linestyle="dotted",
-                                     edgecolor='black', alpha=alpha)
+                                     edgecolor=line_colour, alpha=alpha)
                     plt.text(self.avg(x1[0], x1[1]), self.avg(y1[0], y2[0]),
                              label, horizontalalignment='center',
-                             verticalalignment='center', rotation=90)
-        plt.ylim(len(data), 0)
+                             verticalalignment='center', rotation=90,
+                             color="white")
+        for axis in [ax.yaxis]:
+            axis.set(ticks=np.arange(0.5, len(data[1])),
+                     ticklabels=[x[1] for x in data[1]])
+        ax.xaxis.set_major_locator(MultipleLocator(5))
+        ax.xaxis.set_major_formatter(FormatStrFormatter("%d"))
+        ax.xaxis.set_minor_locator(MultipleLocator(1))
+        plt.ylim(len(data[1]), 0)
+        plt.yticks(fontname="monospace")
         plt.show()
 
     def process_results(self, vcd_data):
-        processed_results = [
+        processed_results = ([
             ([
                 (int(x[1].if_data["time_start"], base=16),
                  int(x[1].if_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 0, "IF", "purple", 1),
+            ], 0, "IF", "purple",  "black", 1),
             ([
                 (int(x[1].if_data["mem_access_req"]["time_start"], base=16),
                  int(x[1].if_data["mem_access_req"]["time_end"], base=16))
                 for x in vcd_data
-            ], 0, "MREQ", "orange", 0.3),
+            ], 0, "MREQ", "purple", "white", 1),
             ([
                 (int(x[1].if_data["mem_access_res"]["time_start"], base=16),
                  int(x[1].if_data["mem_access_res"]["time_end"], base=16))
                 for x in vcd_data
-            ], 0, "MRES", "orange", 0.3),
+            ], 0, "MRES", "purple", "white", 1),
             ([
                 (int(x[1].id_data["time_start"], base=16),
                  int(x[1].id_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 1, "ID", "red", 1),
+            ], 1, "ID", "red", "black", 1),
             ([
                 (int(x[1].ex_data["time_start"], base=16),
                  int(x[1].ex_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 2, "EX", "blue", 1),
+            ], 2, "EX", "blue", "black", 1),
             ([
                 (int(x[1].ex_data["mem_access_req"]["time_start"], base=16),
                  int(x[1].ex_data["mem_access_req"]["time_end"], base=16))
                 for x in vcd_data
-            ], 2, "MREQ", "violet", 0.3),
+            ], 2, "MREQ", "blue", "white", 0.3),
             ([
                 (int(x[1].wb_data["time_start"], base=16),
                  int(x[1].wb_data["time_end"], base=16))
                 for x in vcd_data
-            ], 3, "WB", "purple", 1),
+            ], 3, "WB", "purple", "black", 1),
             ([
                 (int(x[1].wb_data["mem_access_res"]["time_start"], base=16),
                  int(x[1].wb_data["mem_access_res"]["time_end"], base=16))
                 for x in vcd_data
-            ], 3, "MRES", "green", 0.3)
-        ]
+            ], 3, "MRES", "purple", "white", 0.3)
+        ],
+        [
+            (tick_num, "Instruction: {0}\nAddr: {1}".format(
+                x[1].instruction, x[1].address)
+             ) for tick_num, x in
+            enumerate(vcd_data)
+        ])
         return processed_results
 
     def process_and_display_data(self, vcd_data):
