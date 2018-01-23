@@ -130,7 +130,7 @@ class TraceElement(object):
 if __name__ == "__main__":
     vcd_engine = VCDEngine()
     results = vcd_engine.extract_tracing_information(
-        "../working/102553_05012018.vcd")
+        "../working/104508_23012018.vcd")
     from src.display_engine import DisplayEngine
     display_engine = DisplayEngine()
     display_engine.process_and_display_data(results)
