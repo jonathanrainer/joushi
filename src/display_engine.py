@@ -30,19 +30,17 @@ class DisplayEngine(object):
         ax.grid(which="minor", color="black", linestyle="--", linewidth=1,
                 axis="x", alpha=0.3)
         ax.set_axisbelow(True)
-        for (row_data, row_num, label, colour, line_colour, alpha) in data[0]:
+        for (row_data, row_num, label, colour, line_colour, alpha,
+             line_width) in data[0]:
             for col_index, pair in enumerate(row_data):
                 if not(pair[0] == pair[1] and pair[0] == 0):
                     x1 = [pair[0], pair[1]+1]
                     y1 = np.array([col_index, col_index])
                     y2 = y1+1
-                    plt.fill_between(x1, y1, y2=y2, facecolor=colour,
-                                     linewidth=2, linestyle="dotted",
-                                     edgecolor=line_colour, alpha=alpha)
-                    plt.text(self.avg(x1[0], x1[1]), self.avg(y1[0], y2[0]),
-                             label, horizontalalignment='center',
-                             verticalalignment='center', rotation=90,
-                             color="white")
+                    plt.fill_between(
+                        x1, y1, y2=y2, facecolor=colour,
+                        linewidth=line_width, linestyle="dotted",
+                        edgecolor=line_colour, alpha=alpha)
         for axis in [ax.yaxis]:
             axis.set(ticks=np.arange(0.5, len(data[1])),
                      ticklabels=[x[1] for x in data[1]])
@@ -60,42 +58,42 @@ class DisplayEngine(object):
                 (int(x[1].if_data["time_start"], base=16),
                  int(x[1].if_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 0, "IF", "white",  "black", 1),
+            ], 0, "IF", "purple",  "purple", 0, 1),
             ([
                 (int(x[1].if_data["mem_access_req"]["time_start"], base=16),
                  int(x[1].if_data["mem_access_req"]["time_end"], base=16))
                 for x in vcd_data
-            ], 0, "MREQ", "red", "white", 0.5),
+            ], 0, "MREQ", "#CC80CB", "black", 1, 2),
             ([
                 (int(x[1].if_data["mem_access_res"]["time_start"], base=16),
                  int(x[1].if_data["mem_access_res"]["time_end"], base=16))
                 for x in vcd_data
-            ], 0, "MRES", "yellow", "white", 0.5),
+            ], 0, "MRES", "#996198", "black", 1, 2),
             ([
                 (int(x[1].id_data["time_start"], base=16),
                  int(x[1].id_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 1, "ID", "green", "black", 1),
+            ], 1, "ID", "#7600FF", "black", 1, 2),
             ([
                 (int(x[1].ex_data["time_start"], base=16),
                  int(x[1].ex_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 2, "EX", "blue", "black", 1),
+            ], 2, "EX", "#FFF398", "black", 1, 2),
             ([
                 (int(x[1].ex_data["mem_access_req"]["time_start"], base=16),
                  int(x[1].ex_data["mem_access_req"]["time_end"], base=16))
                 for x in vcd_data
-            ], 2, "MREQ", "purple", "white", 0.3),
+            ], 2, "MREQ", "#CCA410", "black", 1, 0),
             ([
                 (int(x[1].wb_data["time_start"], base=16),
                  int(x[1].wb_data["time_end"], base=16))
                 for x in vcd_data
-            ], 3, "WB", "orange", "black", 1),
+            ], 3, "WB", "orange", "black", 1, 2),
             ([
                 (int(x[1].wb_data["mem_access_res"]["time_start"], base=16),
                  int(x[1].wb_data["mem_access_res"]["time_end"], base=16))
                 for x in vcd_data
-            ], 3, "MRES", "brown", "white", 0.3)
+            ], 3, "MRES", "brown", "black", 1, 0)
         ],
         [
             (tick_num, "Instruction: {0}\nAddr: {1}".format(
@@ -103,12 +101,47 @@ class DisplayEngine(object):
              ) for tick_num, x in
             enumerate(vcd_data)
         ])
+        # Further process the data to remove the problem of some stages
+        # stacking up underneath each other
+        processed_results = self.remove_ducking(
+            processed_results, [(1, 0), (2, 0), (5, 4), (7, 6)])
         return processed_results
 
     def process_and_display_data(self, vcd_data):
         processed_data = self.process_results(vcd_data)
         self.display_results(processed_data)
 
-if __name__ == "__main__":
-    de = DisplayEngine()
-    de.display_results(de.data)
+    def remove_ducking(self, processed_results, pairs_and_priorities):
+        list_of_columns = [
+                    processed_results[0][j][0][i] for i in
+                    range(len(processed_results[0][0][0])) for j in
+                    range(len(processed_results[0]))
+                ]
+        columnar_processed_results = \
+            [
+                list_of_columns[x:x + len(processed_results[0])] for
+                x in range(0, len(list_of_columns), len(processed_results[0]))
+            ]
+        for column_number, column in enumerate(columnar_processed_results):
+            for high_priority, low_priority in pairs_and_priorities:
+                low_priority_tuples = \
+                    self.check_intervals(column[high_priority],
+                                         column[low_priority])
+                if low_priority_tuples:
+                    processed_results[0][low_priority][0][column_number:column_number+1] = low_priority_tuples
+                    column[low_priority:low_priority+1] = low_priority_tuples
+        return processed_results
+
+    @staticmethod
+    def check_intervals(hp_interval, lp_interval):
+        lp_tuples = []
+        if hp_interval == (0,0):
+            lp_tuples.append(lp_interval)
+            return lp_tuples
+        if lp_interval[0] > hp_interval[0]:
+            lp_tuples.append((lp_interval[0], hp_interval[0]))
+        if hp_interval[1] < lp_interval[1]:
+            lp_tuples.append((hp_interval[1], lp_interval[1]))
+        if hp_interval == lp_interval:
+            lp_tuples.append((0, 0))
+        return lp_tuples
