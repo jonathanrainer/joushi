@@ -16,6 +16,6 @@ launch_simulation -mode [lindex $argv 1] -simset [lindex $argv 2]
 open_vcd [lindex $argv 3]
 log_vcd /ryuki_testbench/tracer/*
 restart
-run 1000ns
+run 1500ns
 # Close the finished VCD file
 close_vcd

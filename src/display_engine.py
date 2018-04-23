@@ -58,7 +58,7 @@ class DisplayEngine(object):
                 (int(x[1].if_data["time_start"], base=16),
                  int(x[1].if_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 0, "IF", "purple",  "purple", 0, 1),
+            ], 0, "IF", "purple",  "purple", 0, 2),
             ([
                 (int(x[1].if_data["mem_access_req"]["time_start"], base=16),
                  int(x[1].if_data["mem_access_req"]["time_end"], base=16))
@@ -83,7 +83,7 @@ class DisplayEngine(object):
                 (int(x[1].ex_data["mem_access_req"]["time_start"], base=16),
                  int(x[1].ex_data["mem_access_req"]["time_end"], base=16))
                 for x in vcd_data
-            ], 2, "MREQ", "#CCA410", "black", 1, 0),
+            ], 2, "MREQ", "#CCA410", "black", 1, 2),
             ([
                 (int(x[1].wb_data["time_start"], base=16),
                  int(x[1].wb_data["time_end"], base=16))
@@ -93,7 +93,7 @@ class DisplayEngine(object):
                 (int(x[1].wb_data["mem_access_res"]["time_start"], base=16),
                  int(x[1].wb_data["mem_access_res"]["time_end"], base=16))
                 for x in vcd_data
-            ], 3, "MRES", "brown", "black", 1, 0)
+            ], 3, "MRES", "brown", "black", 1, 2)
         ],
         [
             (tick_num, "Instruction: {0}\nAddr: {1}".format(
