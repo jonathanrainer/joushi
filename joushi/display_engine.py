@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+from matplotlib.lines import Line2D
 
 
 class DisplayEngine(object):
@@ -17,6 +18,16 @@ class DisplayEngine(object):
     # Column 7 - Memory RES (WB)
 
     test_data = [(1, 3), (1, 2), (1, 1), (1, 1), (1, 1), (0, 7), (1, 1), (1, 4)]
+    colours = {
+        "IF": "purple",
+        "IF - MREQ": "#CC80CB",
+        "IF - MRES": "#996198",
+        "ID": "#7600FF",
+        "EX": "#FFF398",
+        "EX - MREQ": "#CCA410",
+        "WB": "orange",
+        "WB - MRES": "brown",
+    }
 
     @staticmethod
     def avg(a, b):
@@ -49,7 +60,28 @@ class DisplayEngine(object):
         ax.xaxis.set_minor_locator(MultipleLocator(1))
         plt.ylim(len(data[1]), 0)
         plt.xlim(0, max([max(max(y)) for y in [x[0] for x in data[0]]])+5)
-        plt.yticks(fontname="monospace")
+        plt.yticks(fontname="monospace", size=20)
+        plt.xticks(size=24)
+        custom_lines_for_legend = [
+            Line2D([0], [0], color=self.colours["IF"], lw=25),
+            Line2D([0], [0], color=self.colours["IF - MREQ"], lw=25),
+            Line2D([0], [0], color=self.colours["IF - MRES"], lw=25),
+            Line2D([0], [0], color=self.colours["ID"], lw=25),
+            Line2D([0], [0], color=self.colours["EX"], lw=25),
+            Line2D([0], [0], color=self.colours["EX - MREQ"], lw=25),
+            Line2D([0], [0], color=self.colours["WB"], lw=25),
+            Line2D([0], [0], color=self.colours["WB - MRES"], lw=25),
+        ]
+        ax.legend(custom_lines_for_legend, [
+            "Instruction Fetch",
+            "Instruction Fetch - Memory Access Request",
+            "Instruction Fetch - Memory Access Response",
+            "Decode",
+            "Execution",
+            "Execution - Memory Access Request",
+            "Writeback",
+            "Writeback - Memory Access Response"
+        ], fontsize=30)
         plt.show()
 
     def process_results(self, vcd_data):
@@ -58,42 +90,42 @@ class DisplayEngine(object):
                 (int(x[1].if_data["time_start"], base=16),
                  int(x[1].if_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 0, "IF", "purple",  "purple", 0, 2),
+            ], 0, "IF", self.colours["IF"], self.colours["IF"], 0, 2),
             ([
                 (int(x[1].if_data["mem_access_req"]["time_start"], base=16),
                  int(x[1].if_data["mem_access_req"]["time_end"], base=16))
                 for x in vcd_data
-            ], 0, "MREQ", "#CC80CB", "black", 1, 2),
+            ], 0, "IF - MREQ", self.colours["IF - MREQ"], "black", 1, 2),
             ([
                 (int(x[1].if_data["mem_access_res"]["time_start"], base=16),
                  int(x[1].if_data["mem_access_res"]["time_end"], base=16))
                 for x in vcd_data
-            ], 0, "MRES", "#996198", "black", 1, 2),
+            ], 0, "MRES", self.colours["IF - MRES"], "black", 1, 2),
             ([
                 (int(x[1].id_data["time_start"], base=16),
                  int(x[1].id_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 1, "ID", "#7600FF", "black", 1, 2),
+            ], 1, "ID", self.colours["ID"], "black", 1, 2),
             ([
                 (int(x[1].ex_data["time_start"], base=16),
                  int(x[1].ex_data["time_end"], base=16)) for x in
                 vcd_data
-            ], 2, "EX", "#FFF398", "black", 1, 2),
+            ], 2, "EX", self.colours["EX"], "black", 1, 2),
             ([
                 (int(x[1].ex_data["mem_access_req"]["time_start"], base=16),
                  int(x[1].ex_data["mem_access_req"]["time_end"], base=16))
                 for x in vcd_data
-            ], 2, "MREQ", "#CCA410", "black", 1, 2),
+            ], 2, "MREQ", self.colours["EX - MREQ"], "black", 1, 2),
             ([
                 (int(x[1].wb_data["time_start"], base=16),
                  int(x[1].wb_data["time_end"], base=16))
                 for x in vcd_data
-            ], 3, "WB", "orange", "black", 1, 2),
+            ], 3, "WB", self.colours["WB"], "black", 1, 2),
             ([
                 (int(x[1].wb_data["mem_access_res"]["time_start"], base=16),
                  int(x[1].wb_data["mem_access_res"]["time_end"], base=16))
                 for x in vcd_data
-            ], 3, "MRES", "brown", "black", 1, 2)
+            ], 3, "MRES", self.colours["WB - MRES"], "black", 1, 2)
         ],
         [
             (tick_num, "Instruction: {0}\nAddr: {1}".format(

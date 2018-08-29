@@ -28,12 +28,12 @@ class VCDEngine(object):
         (["wb_data", "mem_access_res", "time_end"], 545, 577)
     ]
 
-    def extract_tracing_information(self, vcd_file):
+    def extract_tracing_information(self, vcd_file, testbench_module_name):
         # Grab the required signal trace from the VCD file
         parsed = [
             v['tv'] for _, v in
             parse_vcd(str(vcd_file),
-                      siglist=["ryuki_testbench.tracer.trace_data_o[31:0]"],
+                      siglist=["{0}.tracer.trace_data_o[31:0]".format(testbench_module_name)],
                       opt_timescale="ns").items()
         ][0]
         # Reformat the data so that it's an object containing each data
@@ -131,6 +131,6 @@ if __name__ == "__main__":
     vcd_engine = VCDEngine()
     results = vcd_engine.extract_tracing_information(
         "../working/125718_24012018.vcd")
-    from src.display_engine import DisplayEngine
+    from joushi.display_engine import DisplayEngine
     display_engine = DisplayEngine()
     display_engine.process_and_display_data(results)

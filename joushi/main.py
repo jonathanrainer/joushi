@@ -4,8 +4,9 @@ from argparse import ArgumentParser
 from pathlib import Path
 from datetime import datetime
 
-from src.vcd_engine import VCDEngine
-from src.display_engine import DisplayEngine
+from joushi.vcd_engine import VCDEngine
+from joushi.display_engine import DisplayEngine
+
 
 class Joushi(object):
 
@@ -26,7 +27,7 @@ class Joushi(object):
                 tcl_simulation_script.expanduser(),
                 vivado_project_path.expanduser(),
                 simulation_mode, simulation_set, output_file_path), shell=True)
-        vcd_data = self.vcd_engine.extract_tracing_information(output_file_path)
+        vcd_data = self.vcd_engine.extract_tracing_information(output_file_path, "ryuki_testbench")
         self.display_engine.process_and_display_data(vcd_data)
 
 
