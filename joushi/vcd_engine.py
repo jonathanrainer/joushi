@@ -20,12 +20,13 @@ class VCDEngine(object):
         (["id_data", "time_end"], 289, 321),
         (["ex_data", "time_start"], 321, 353),
         (["ex_data", "time_end"], 353, 385),
-        (["ex_data", "mem_access_req", "time_start"], 385, 417),
-        (["ex_data", "mem_access_req", "time_end"], 417, 449),
-        (["wb_data", "time_start"], 449, 481),
-        (["wb_data", "time_end"], 481, 513),
-        (["wb_data", "mem_access_res", "time_start"], 513, 545),
-        (["wb_data", "mem_access_res", "time_end"], 545, 577)
+        (["ex_data", "mem_addr"], 385, 417),
+        (["ex_data", "mem_access_req", "time_start"], 417, 449),
+        (["ex_data", "mem_access_req", "time_end"], 449, 481),
+        (["wb_data", "time_start"], 481, 513),
+        (["wb_data", "time_end"], 513, 545),
+        (["wb_data", "mem_access_res", "time_start"], 545, 577),
+        (["wb_data", "mem_access_res", "time_end"], 577, 609)
     ]
 
     def extract_tracing_information(self, vcd_file, testbench_module_name):
